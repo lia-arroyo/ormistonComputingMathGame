@@ -3,6 +3,7 @@
 # Lia
 
 from tkinter import *
+from user import *
 
 # Interface class
 class Interface:
@@ -17,8 +18,7 @@ class Interface:
         self.parent_window.columnconfigure(2, minsize=150)
         self.parent_window.columnconfigure(3, minsize=150)
 
-
-    def start_frame(self):
+    def start(self):
         self.parent = Frame(self.parent_window)
         self.parent_window.configure(background="#00ffff") #changing bg to blue
         self.parent.grid()
@@ -40,6 +40,9 @@ class Interface:
         self.year = Entry(self.parent_window, width=30)
         self.year.grid(row=3, column=2, columnspan=2)
 
+        # Sending data to user class (creating an instance)
+        self.student = Students(self.name, self.year)
+        
         # Buttons - Quit and Next
         quit_btn = Button(self.parent_window, text="Quit", bg="#ff0000", width=10, font=("Helvetica", 10, 'bold'), command=self.quit)
         quit_btn.grid(row=4, column=1, columnspan=2)
@@ -48,15 +51,17 @@ class Interface:
         next_btn.grid(row=4, column=2, columnspan=2)
 
     def home(self):
+        self.name = self.student.return_info()
+        
         # destroying widgets from previous frame
         for widget in self.parent_window.winfo_children() :
             widget.destroy()
 
         # Welcome text
-        Label(self.parent_window, text="Ormiston Computing", bg="#00ffff", font=("Helvetica", 14, 'bold'), pady = 20).grid(row=1, column=1, columnspan = 3)
+        Label(self.parent_window, text="Ormiston Computing {}".format(self.name), bg="#00ffff", font=("Helvetica", 14, 'bold'), pady = 20).grid(row=1, column=1, columnspan = 3)
 
         # Buttons
-        start_btn = Button(self.parent_window, text="Start", bg="#ffff00", font=("Helvetica", 14, 'bold'), width=8, command=self.start)
+        start_btn = Button(self.parent_window, text="Start", bg="#ffff00", font=("Helvetica", 14, 'bold'), width=8, command=self.option)
         start_btn.grid(row=2, column=2)
 
         quit_btn = Button(self.parent_window, text="Quit", bg="#ff0000", font=("Helvetica", 12, 'bold'), width=6, command=self.quit)
@@ -66,8 +71,12 @@ class Interface:
         help_link = Button(self.parent_window, text="Help?", bg="#00ffff", fg="#0000ff", borderwidth=0, font=("Helvetica", 8, 'underline'))
         help_link.grid(row=5, column=1)
 
-    def start(self):
-        Label(self.parent_window, text="test!!").grid()
+    def option(self):
+        # destroying widgets from previous frame
+        for widget in self.parent_window.winfo_children() :
+            widget.destroy()
+
+        self.student.return_info()
 
     def quit(self):
         self.parent_window.destroy()
