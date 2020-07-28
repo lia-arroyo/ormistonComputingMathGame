@@ -4,6 +4,7 @@
 
 from tkinter import *
 from user import *
+from tkinter import messagebox
 
 # Interface class
 class Interface:
@@ -12,7 +13,7 @@ class Interface:
         self.parent_window = parent_window
         self.restart = False
 
-        # Setting minimum sizes for window and
+        # Setting minimum sizes for window 
         self.parent_window.minsize(450, 250)
         self.parent_window.columnconfigure(1, minsize=150)
         self.parent_window.columnconfigure(2, minsize=150)
@@ -31,6 +32,7 @@ class Interface:
         # Welcome text
         Label(self.parent_window, text="Ormiston Computing", bg="#00ffff", font=("Helvetica", 14, 'bold'), pady = 20).grid(row=1, column=1, columnspan = 3)
 
+        
         # Name and year
         Label(self.parent_window, text="Name:", bg="#00ffff", font=("Helvetica", 12, 'bold')).grid(row=2, column=1)
         self.name = Entry(self.parent_window, width=30)
@@ -39,26 +41,42 @@ class Interface:
         Label(self.parent_window, text="Year:", bg="#00ffff", font=("Helvetica", 12, 'bold')).grid(row=3, column=1)
         self.year = Entry(self.parent_window, width=30)
         self.year.grid(row=3, column=2, columnspan=2)
-
-        # Sending data to user class (creating an instance)
-        self.student = Students(self.name, self.year)
         
         # Buttons - Quit and Next
         quit_btn = Button(self.parent_window, text="Quit", bg="#ff0000", width=10, font=("Helvetica", 10, 'bold'), command=self.quit)
         quit_btn.grid(row=4, column=1, columnspan=2)
 
-        next_btn = Button(self.parent_window, text="Next", bg="#abab0a", width=10, font=("Helvetica", 10, 'bold'), command=self.home)
+        next_btn = Button(self.parent_window, text="Next", bg="#abab0a", width=10, font=("Helvetica", 10, 'bold'), command=self.error)
         next_btn.grid(row=4, column=2, columnspan=2)
 
+    def error(self):
+
+        # Getting students data before destroying widgets
+        self.name = self.name.get().title()
+        self.year = self.year.get().title()
+
+        # Sending data to user class (creating an instance)
+        self.student = Students(self.name, self.year) 
+        
+        if self.year not in ["4","5","6"]:
+            messagebox.showerror("ERROR", "For year level, please enter a whole number from 4 to 6.")
+            Interface.start(self)
+
+        elif self.name == "":
+            messagebox.showerror("ERROR", "Please enter your name.")
+            Interface.start(self)
+
+        else:
+            Interface.home(self)
+
     def home(self):
-        self.name = self.student.return_info()
         
         # destroying widgets from previous frame
         for widget in self.parent_window.winfo_children() :
             widget.destroy()
 
         # Welcome text
-        Label(self.parent_window, text="Ormiston Computing {}".format(self.name), bg="#00ffff", font=("Helvetica", 14, 'bold'), pady = 20).grid(row=1, column=1, columnspan = 3)
+        Label(self.parent_window, text="Ormiston Computing", bg="#00ffff", font=("Helvetica", 14, 'bold'), pady = 20).grid(row=1, column=1, columnspan = 3)
 
         # Buttons
         start_btn = Button(self.parent_window, text="Start", bg="#ffff00", font=("Helvetica", 14, 'bold'), width=8, command=self.option)
@@ -75,9 +93,23 @@ class Interface:
         # destroying widgets from previous frame
         for widget in self.parent_window.winfo_children() :
             widget.destroy()
+            
+        # Minimum row size
+        self.parent_window.rowconfigure(2, minsize=10)
 
-        self.student.return_info()
+        # Welcome, [student] text
+        Label(self.parent_window, text="Welcome, {}".format(self.name), bg="#00ffff", font=("Helvetica", 14, 'bold'), pady = 20).grid(row=1, column=1, columnspan = 3)
 
+        # Question
+        Label(self.parent_window, text="Which topic would you like to practice?", bg="#00ffff", font=("Helvetica", 12, 'bold')).grid(row=2, column=1, columnspan = 3)
+
+        # Buttons
+        addition_btn = Button(self.parent_window, text="Addition [+]", bg="#ffff00", font=("Helvetica", 10, 'bold'), pady = 8, padx = 35, width=8)
+        addition_btn.grid(row=3, column=2)
+
+        multiplication_btn = Button(self.parent_window, text="Multiplication [x]", bg="#ffff00", font=("Helvetica", 10, 'bold'), pady = 8, padx = 35, width=8)
+        multiplication_btn.grid(row=4, column=2)
+        
     def quit(self):
         self.parent_window.destroy()
 

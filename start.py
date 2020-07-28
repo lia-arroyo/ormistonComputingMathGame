@@ -10,4 +10,3 @@ window.title("Ormiston Computing Program")
 
 gui = Interface(window)
 gui.start()
-

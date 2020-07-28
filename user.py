@@ -7,7 +7,3 @@ class Students:
     def __init__(self, name, year):
         self.name = name
         self.year = year
-        
-
-    def return_info(self):
-        return self.name
