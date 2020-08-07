@@ -3,7 +3,6 @@
 # Lia
 
 import random
-import computing_interface
 
 class Students:
 
@@ -12,7 +11,6 @@ class Students:
         self.year = year
         self.option = option
         self.level = level
-        self.points = 0 # starts off with zero points
 
         self.ranges()
 
@@ -45,7 +43,9 @@ class Students:
             self.start = 20
             self.end = 50
 
-        self.questions()
+        # initialising variables 
+        self.points = 0 # starts off with zero points
+        self.question_num = 1 # starts with question 1
             
     def questions(self):
 
@@ -53,11 +53,32 @@ class Students:
         num2 = random.randint(self.start, self.end)
 
         if self.option == "Addition":
-            correct_answer = num1 + num2
-            display = "{} + {} = {}".format(num1,num2,correct_answer)
+            self.correct_answer = num1 + num2
 
         else: # multiplication
-            correct_answer = num2 * num2
-            display = "{} x {} = {}".format(num1, num2, correct_answer)
+            self.correct_answer = num2 * num2
+
+        send_info = [num1, num2, self.correct_answer, self.points, self.question_num] 
+        return  send_info
+
+
+    def check_answers(self, answer):
+
+        if answer == self.correct_answer:
+            correct = True
+            self.points +=1
+
+        else:
+            correct = False
+
+        print(answer)
+        print(self.correct_answer)
+
+        self.question_num += 1
+        return correct
+
         
-        computing_interface.Interface.questions_frame(num1, num2, correct_answer)
+
+
+
+        

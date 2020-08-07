@@ -4,7 +4,7 @@
 
 from tkinter import *
 from tkinter import messagebox
-import user_class
+from user_class import Students
 
 # Interface class
 class Interface:
@@ -66,6 +66,12 @@ class Interface:
             Interface.home(self)
 
     def home(self):
+
+        # Minimum row size
+        self.parent_window.rowconfigure(2, minsize=50)
+        self.parent_window.rowconfigure(3, minsize=50)
+        self.parent_window.rowconfigure(4, minsize=50)
+        self.parent_window.rowconfigure(6, minsize=0)
         
         # destroying widgets from previous frame
         for widget in self.parent_window.winfo_children() :
@@ -163,38 +169,94 @@ class Interface:
         easy_btn = Button(self.parent_window, text="Easy", bg="#ffff00", font=("Helvetica", 12, 'bold'), pady = 6, width=10, command=self.easy)
         easy_btn.grid(row=3, column=2)
 
-        medium_btn = Button(self.parent_window, text="Medium", bg="#ffff00", font=("Helvetica", 12, 'bold'), pady = 6, width=10)
+        medium_btn = Button(self.parent_window, text="Medium", bg="#ffff00", font=("Helvetica", 12, 'bold'), pady = 6, width=10, command=self.medium)
         medium_btn.grid(row=4, column=2)
 
-        hard_btn = Button(self.parent_window, text="Hard", bg="#ffff00", font=("Helvetica", 12, 'bold'), pady = 6, width=10)
+        hard_btn = Button(self.parent_window, text="Hard", bg="#ffff00", font=("Helvetica", 12, 'bold'), pady = 6, width=10, command=self.hard)
         hard_btn.grid(row=5, column=2)
 
     # LEVEL OPTIONS   
     def easy(self):
         self.level_chosen = "Easy"
-        Interface.transfer(self)
+        self.transfer()
 
     def medium(self):
         self.level_chosen = "Medium"
-        Interface.transfer(self)
+        self.transfer()
 
     def hard(self):
         self.level_chosen = "Hard"
-        Interface.transfer(self)
+        self.transfer()
 
     # END OF LEVEL OPTIONS
 
     def transfer(self):
         # sending data to user class (creating an instance)
         self.student = Students(self.name, self.year, self.option_chosen, self.level_chosen)
-        self.student.questions()
+        generated_questions = self.student.questions()
+
+        self.num1 = generated_questions[0]
+        self.num2 = generated_questions[1]
+        self.correct_answer = generated_questions[2]
+        self.points = generated_questions[3] # starts w zero
+        self.question_num = generated_questions[4] # starts at 1  
         
-    def questions_frame(self, num1, num2, correct_answer):
+        self.questions_frame()
+
+    def questions_frame(self): # displaying question and results page
+
         # destroying widgets from previous frame
         for widget in self.parent_window.winfo_children():
             widget.destroy()
-        
-        Label(self.parent_window, text="{} + {} = {}".format(self.num1, self.num2, self.correct_answer)).grid(row=1, column=1)
+
+        if self.question_num < 11: # 10 questions)
+            
+            # Header
+            Label(self.parent_window, text="LEVEL: {}".format(self.level_chosen), bg="#00ffff", font=("Helvetica", 12, 'bold'), pady=10, padx=10).grid(row=1, column=1,sticky= "W")
+            Label(self.parent_window, text="POINTS: {}".format(self.points), bg="#00ffff", font=("Helvetica", 12, 'bold'), padx=10).grid(row=2, column=1,sticky= "W")
+
+            home_btn = Button(self.parent_window, text="Home", bg="#abab0a", font=("Helvetica", 10, 'bold'), width=9, command=self.home)
+            home_btn.grid(row=1, column=3, rowspan=2, columnspan=2, sticky="E", padx=10)
+
+            Label(self.parent_window, text="Question {}".format(self.question_num), bg="#00ffff", font=("Helvetica", 14, 'bold'), pady=10, padx=10).grid(row=3, column=1, columnspan=3)
+            
+            # Question
+
+            if self.option_chosen == "Addition":
+                Label(self.parent_window, text="{} + {}".format(self.num1, self.num2, self.correct_answer), bg="#00ffff", font=("Helvetica", 18, 'bold'), pady=2).grid(row=4, column=2)
+
+            else:
+                Label(self.parent_window, text="{} x {}".format(self.num1, self.num2, self.correct_answer), bg="#00ffff", font=("Helvetica", 18, 'bold'), pady=2).grid(row=4, column=2)
+
+            # Answer
+            self.answer = Entry(self.parent_window, width=7, justify="center", font=("Helvetica", 18, 'bold'))
+            self.answer.grid(row=5, column=2, ipady = 5)
+
+            # Submit button
+            submit_btn = Button(self.parent_window, text="Submit", bg="#ffff00", width=11, font=("Helvetica", 10, 'bold'), pady=5, command=self.result_frame)
+            submit_btn.grid(row=6, column=2, pady=30)
+
+
+    def result_frame(self):
+        # getting answer from prev frame
+        self.answer = self.answer.get().title()
+
+        # Calling check_answers function from user class
+        correct = self.student.check_answers(self.answer)
+
+        # destroying widgets from previous frame
+        for widget in self.parent_window.winfo_children():
+            widget.destroy()
+
+        if correct == True:
+            Label(self.parent_window, text="CORRECT").grid(row=1, column=1)
+
+        elif correct == False:
+            Label(self.parent_window, text="INCORRECT").grid(row=1, column=1)
+
+        else:
+            Label(self.parent_window, text="hi").grid(row=1,column=1)
+            
 
     def quit(self):
         self.parent_window.destroy()
