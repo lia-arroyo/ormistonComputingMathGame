@@ -12,6 +12,7 @@ class Interface:
     def __init__(self, parent_window):
         self.parent_window = parent_window
         self.restart = False
+        self.error_tested = False
 
         # Setting minimum sizes for window 
         self.parent_window.minsize(450, 250)
@@ -45,10 +46,10 @@ class Interface:
         quit_btn = Button(self.parent_window, text="Quit", bg="#ff0000", width=10, font=("Helvetica", 10, 'bold'), command=self.quit)
         quit_btn.grid(row=4, column=1, columnspan=2)
 
-        next_btn = Button(self.parent_window, text="Next", bg="#abab0a", width=10, font=("Helvetica", 10, 'bold'), command=self.error)
+        next_btn = Button(self.parent_window, text="Next", bg="#abab0a", width=10, font=("Helvetica", 10, 'bold'), command=self.error1)
         next_btn.grid(row=4, column=2, columnspan=2)
 
-    def error(self):
+    def error1(self):
 
         # Getting students data before destroying widgets
         self.name = self.name.get().title()
@@ -56,14 +57,14 @@ class Interface:
         
         if self.year not in ["6","7","8"]:
             messagebox.showerror("ERROR", "For year level, please enter a whole number from 6 to 8. This program is intended for Year 6 to 8 only.")
-            Interface.start(self)
+            self.start()
 
         elif self.name == "":
             messagebox.showerror("ERROR", "Please enter your name.")
-            Interface.start(self)
+            self.start()
 
         else:
-            Interface.home(self)
+            self.home()
 
     def home(self):
 
@@ -140,13 +141,13 @@ class Interface:
     
         self.option_chosen = "Addition"
         # Moving to next frame
-        Interface.levels(self)
+        self.levels()
 
     def multiplication(self):
 
         self.option_chosen = "Multiplication"
         # Moving to next frame
-        Interface.levels(self)
+        self.levels()
         
     # END OF OPTION FUNCTIONS
     
@@ -193,24 +194,33 @@ class Interface:
     def transfer(self):
         # sending data to user class (creating an instance)
         self.student = Students(self.name, self.year, self.option_chosen, self.level_chosen)
-        generated_questions = self.student.questions()
+        self.qinfo = self.student.ranges()
 
-        self.num1 = generated_questions[0]
-        self.num2 = generated_questions[1]
-        self.correct_answer = generated_questions[2]
-        self.points = generated_questions[3] # starts w zero
-        self.question_num = generated_questions[4] # starts at 1  
+        self.points = self.qinfo[0] # starts w zero
+        self.question_num = self.qinfo[1] # starts at 1 
         
         self.questions_frame()
 
     def questions_frame(self): # displaying question and results page
-
         # destroying widgets from previous frame
         for widget in self.parent_window.winfo_children():
             widget.destroy()
 
+        self.parent_window.configure(background="#00ffff")
+        
+        if self.error_tested == False:
+
+            generated_questions = self.student.questions()
+
+            self.num1 = generated_questions[0]
+            self.num2 = generated_questions[1]
+            self.correct_answer = generated_questions[2]
+
+        else:
+            self.error_tested = False # turning it back to false for the next question
+
         if self.question_num < 11: # 10 questions)
-            
+
             # Header
             Label(self.parent_window, text="LEVEL: {}".format(self.level_chosen), bg="#00ffff", font=("Helvetica", 12, 'bold'), pady=10, padx=10).grid(row=1, column=1,sticky= "W")
             Label(self.parent_window, text="POINTS: {}".format(self.points), bg="#00ffff", font=("Helvetica", 12, 'bold'), padx=10).grid(row=2, column=1,sticky= "W")
@@ -223,40 +233,96 @@ class Interface:
             # Question
 
             if self.option_chosen == "Addition":
-                Label(self.parent_window, text="{} + {}".format(self.num1, self.num2, self.correct_answer), bg="#00ffff", font=("Helvetica", 18, 'bold'), pady=2).grid(row=4, column=2)
+                Label(self.parent_window, text="{} + {}".format(self.num1, self.num2), bg="#00ffff", font=("Helvetica", 18, 'bold'), pady=2).grid(row=4, column=2)
 
             else:
-                Label(self.parent_window, text="{} x {}".format(self.num1, self.num2, self.correct_answer), bg="#00ffff", font=("Helvetica", 18, 'bold'), pady=2).grid(row=4, column=2)
+                Label(self.parent_window, text="{} x {}".format(self.num1, self.num2), bg="#00ffff", font=("Helvetica", 18, 'bold'), pady=2).grid(row=4, column=2)
 
             # Answer
             self.answer = Entry(self.parent_window, width=7, justify="center", font=("Helvetica", 18, 'bold'))
             self.answer.grid(row=5, column=2, ipady = 5)
 
             # Submit button
-            submit_btn = Button(self.parent_window, text="Submit", bg="#ffff00", width=11, font=("Helvetica", 10, 'bold'), pady=5, command=self.result_frame)
+            submit_btn = Button(self.parent_window, text="Submit", bg="#ffff00", width=11, font=("Helvetica", 10, 'bold'), pady=5, command=self.error2)
             submit_btn.grid(row=6, column=2, pady=30)
 
+        else:
+            self.final_results()
 
+    def error2(self):
+
+        try:
+            self.answer = int(self.answer.get())
+
+        except ValueError:
+            messagebox.showerror("ERROR", "Please enter a valid whole number.")
+            self.error_tested = True
+            self.questions_frame()
+
+        else:
+            self.result_frame()
+        
     def result_frame(self):
-        # getting answer from prev frame
-        self.answer = self.answer.get().title()
 
         # Calling check_answers function from user class
-        correct = self.student.check_answers(self.answer)
+        results = self.student.check_answers(self.answer)
+
+        self.correct = results[0]
+        self.points = results[1]
+        self.question_num = results[2]
 
         # destroying widgets from previous frame
         for widget in self.parent_window.winfo_children():
             widget.destroy()
 
-        if correct == True:
-            Label(self.parent_window, text="CORRECT").grid(row=1, column=1)
-
-        elif correct == False:
-            Label(self.parent_window, text="INCORRECT").grid(row=1, column=1)
+        # Changing bg and text to say if it is correct or not
+        if self.correct == 1:
+            bg_colour = "#66ff66" #changing bg to green
+            Label(self.parent_window, text="Correct!", font=("Helvetica", 16, 'bold'), bg=bg_colour).grid(row=2, column=2)
 
         else:
-            Label(self.parent_window, text="hi").grid(row=1,column=1)
+            bg_colour ="#ff6666" #changing bg to red
+            Label(self.parent_window, text="Incorrect!", font=("Helvetica", 16, 'bold'), bg=bg_colour).grid(row=2, column=2)
+
+        # Styling frame
+        self.parent_window.configure(background=bg_colour)
+        self.parent_window.rowconfigure(1, minsize=60)
+        self.parent_window.rowconfigure(5, minsize=0)
+        
+        # Answer
+        if self.option_chosen == "Addition":
+            Label(self.parent_window, text="{} + {} = {}".format(self.num1, self.num2, self.correct_answer), bg=bg_colour, font=("Helvetica", 20, 'bold')).grid(row=3, column=2)
+
+        else:
+            Label(self.parent_window, text="{} x {} = {}".format(self.num1, self.num2, self.correct_answer), bg=bg_colour, font=("Helvetica", 20, 'bold')).grid(row=3, column=2)
+
+        # Displaying the points
+        Label(self.parent_window, text="POINTS: {}".format(self.points), bg=bg_colour, font=("Helvetica", 16, 'bold')).grid(row=4, column=2)
+
+        nextq_btn = Button(self.parent_window, text="Next", bg="#ffff00", width=11, font=("Helvetica", 10, 'bold'), pady=5, command=self.questions_frame)
+        nextq_btn.grid(row=5, column=2, pady=10)
+        
+    def final_results(self):
+
+        # Header
+        quit_btn = Button(self.parent_window, text="Quit", bg="#ff0000", width=9, font=("Helvetica", 10, 'bold'), command=self.quit)
+        quit_btn.grid(row=1, column=1, sticky="W", padx=10)
+
+        home_btn = Button(self.parent_window, text="Home", bg="#abab0a", font=("Helvetica", 10, 'bold'), width=10, command=self.home)
+        home_btn.grid(row=1, column=3, sticky="E", padx=10)
+
+        # Congrats or Game Over
+        if self.points > 6: # for points 7 and over
+            Label(self.parent_window, text="Congratulations!!", bg = "#00ffff", font=("Helvetica", 14, 'bold')).grid(row=2, column=2)
+            next_btn = Button(self.parent_window, text="Next", bg="#abab0a", font=("Helvetica", 10, 'bold'), width=10, command=self.levels)
+            next_btn.grid(row=5, column=2)
+        
+        else:
+            Label(self.parent_window, text="Game Over", bg = "#00ffff", font=("Helvetica", 14, 'bold')).grid(row=2, column=2)
+            restart_btn = Button(self.parent_window, text="Restart", bg="#abab0a", font=("Helvetica", 10, 'bold'), width=10, command=self.transfer)
+            restart_btn.grid(row=5, column=2)
             
+        Label(self.parent_window, text="Total Questions: 10\nCorrect: {}".format(self.points), bg="#ffff00", font=("Helvetica", 12, 'bold'), borderwidth=1, relief="solid", width=30, pady=15, padx=15, justify="left", anchor="w").grid(row=3, rowspan=2, column=1, columnspan=3)
 
     def quit(self):
         self.parent_window.destroy()

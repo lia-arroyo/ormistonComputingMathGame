@@ -46,7 +46,11 @@ class Students:
         # initialising variables 
         self.points = 0 # starts off with zero points
         self.question_num = 1 # starts with question 1
-            
+
+        # Sending points and question number only
+        send_qinfo = [self.points, self.question_num]
+        return send_qinfo
+   
     def questions(self):
 
         num1 = random.randint(self.start, self.end)
@@ -56,29 +60,22 @@ class Students:
             self.correct_answer = num1 + num2
 
         else: # multiplication
-            self.correct_answer = num2 * num2
+            self.correct_answer = num1 * num2
 
-        send_info = [num1, num2, self.correct_answer, self.points, self.question_num] 
-        return  send_info
+        send_question = [num1, num2, self.correct_answer] 
+        return  send_question
 
 
     def check_answers(self, answer):
 
         if answer == self.correct_answer:
-            correct = True
+            correct = 1 # 1 means it is correct
             self.points +=1
 
         else:
-            correct = False
-
-        print(answer)
-        print(self.correct_answer)
+            correct = 0 # 0 means it is incorrect
 
         self.question_num += 1
-        return correct
+        send_result = [correct, self.points, self.question_num]
 
-        
-
-
-
-        
+        return send_result
