@@ -350,7 +350,8 @@ class Interface:
             restart_btn.grid(row=5, column=2)
             
         Label(self.parent_window, text="Total Questions: 10\nCorrect: {}".format(self.points), bg="#ffff00", font=("Helvetica", 12, 'bold'), borderwidth=1, relief="solid", width=30, pady=15, padx=15, justify="left", anchor="w").grid(row=3, rowspan=2, column=1, columnspan=3)
-
+        self.student.write_file()
+        
     def quit(self):
         self.parent_window.destroy()
 

@@ -79,3 +79,13 @@ class Students:
         send_result = [correct, self.points, self.question_num]
 
         return send_result
+
+    def write_file(self):
+        file = open("students_report.txt", 'a')
+        file.write("\n-------------------------------------")
+        file.write("\nName: {} \nYear Level: {} \nTopic: {}\nLevel: {}\nPoints: {}\n".format(self.name, self.year, self.option, self.level, self.points)) 
+        file.write("\n-------------------------------------")
+
+        file.close()
+
+        
