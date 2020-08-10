@@ -51,20 +51,47 @@ class Interface:
 
     def error1(self):
 
-        # Getting students data before destroying widgets
-        self.name = self.name.get().title()
-        self.year = self.year.get().title()
-        
-        if self.year not in ["6","7","8"]:
-            messagebox.showerror("ERROR", "For year level, please enter a whole number from 6 to 8. This program is intended for Year 6 to 8 only.")
-            self.start()
+        try:
+            # Getting students data before destroying widgets
+            self.name = self.name.get().title()
+            self.year = int(self.year.get())
+            
+        except ValueError:
 
-        elif self.name == "":
-            messagebox.showerror("ERROR", "Please enter your name.")
-            self.start()
+            testyear = self.year.get() # doesn't save year level as integer, allows to test for no input
+            
+            if self.name == "" and testyear == "": # if both are not entered/empty
+                messagebox.showerror("ERROR", "Please enter your name and your year level.")
+                self.start()
 
-        else:
-            self.home()
+            elif self.name != "" and testyear == "": # if only the year level is empty
+                messagebox.showerror("ERROR", "Please enter your year level.")
+                self.start()
+
+            elif self.name == "": # if name is empty and year level is invalid
+                messagebox.showerror("ERROR", "Please enter your name, and enter a whole number from 6 to 8 for year level.")
+                self.start()
+
+            else: # if year level is not an integer
+                messagebox.showerror("ERROR", "Please enter a whole number from 6 to 8 for year level.")
+                self.start()
+                
+        else:                
+
+            if self.year not in range(6,9) and self.name != "": # if name is expected but year level is outside boundary
+                messagebox.showerror("ERROR", "This program is intended for Year 6 to 8 only. Please enter a whole number from 6 to 8.")
+                self.start()
+
+            elif self.name == "" and self.year in range(6,9): # if no name is entered but year level is expected
+                messagebox.showerror("ERROR", "Please enter your name.")
+                self.start()
+
+            elif self.name == "" and self.year not in range(6,9): # if no name is entered and year level is outside boundary
+                messagebox.showerror("ERROR", "Please enter your name and year level. This program is intended for Year 6 to 8 only.")
+                self.start()
+
+            else:
+                self.home()
 
     def home(self):
 
